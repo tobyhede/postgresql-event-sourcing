@@ -5,7 +5,7 @@ create or replace function fn_event_trigger_user_create() returns trigger
 as $$
   begin
     if new.type = 'create_user' then
-      perform fn_event_user_insert(new.body);
+      perform fn_event_user_insert(new.uuid, new.body);
     end if;
     return new;
   end;
@@ -17,7 +17,7 @@ create or replace function fn_event_trigger_user_update() returns trigger
 as $$
   begin
     if new.type = 'update_user' then
-    perform fn_event_user_update(new.body);
+    perform fn_event_user_update(new.uuid, new.body);
   end if;
   return new;
   end;

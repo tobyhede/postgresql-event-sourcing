@@ -1,13 +1,24 @@
 
-truncate table events;
+drop sequence IF EXISTS users_id_seq ;
 
-truncate table users;
+create sequence users_id_seq;
 
-insert into events (type, body)
-  values ('create_user', '{"id": 42, "name": "blah"}');
+drop table if exists users;
 
-insert into events (type, body)
-  values ('update_user', '{"id": 42, "name": "vtha"}');
+CREATE TABLE "users" (
+  "id" int4 NOT NULL DEFAULT nextval('users_id_seq'::regclass),
+  "uuid" uuid NOT NULL,
+  "name" text NOT NULL,
+  "inserted_at" timestamp(6) NOT NULL DEFAULT 'NOW()',
+  "updated_at" timestamp(6) NOT NULL DEFAULT 'NOW()'
+);
+
+
+insert into events (type, uuid, body)
+  values ('create_user', '11111111-1111-1111-1111-111111111111', '{"name": "blah"}');
+
+insert into events (type, uuid, body)
+  values ('update_user', '11111111-1111-1111-1111-111111111111', '{"name": "vtha"}');
 
 
 -- Retrigger events
@@ -21,6 +32,23 @@ do language plpgsql $$
   end;
 $$;
 
+
+truncate table users;
+-- Retrigger events for a specific user
+do language plpgsql $$
+  declare
+    e record;
+  begin
+    for e in select type, body from events where (body->>'id')::int = 42 order by inserted_at asc loop
+	  if e.type = 'create_user' then
+        perform fn_event_user_insert(e.body);
+	  end if;
+	  if e.type = 'update_user' then
+        perform fn_event_user_update(e.body);
+	  end if;
+    end loop;
+  end;
+$$;
 
 -- insert into users(id, name, inserted_at, updated_at)
 --     values(new.id, new.body->>'blah', now(), now())
