@@ -1,31 +1,28 @@
 
-TRUNCATE TABLE events;
+truncate table events;
 
-TRUNCATE TABLE users;
+truncate table users;
 
-INSERT INTO events (type, body)
-  VALUES ('create_user', '{"id": 42, "name": "blah"}');
+insert into events (type, body)
+  values ('create_user', '{"id": 42, "name": "blah"}');
 
-INSERT INTO events (type, body)
-  VALUES ('update_user', '{"id": 42, "name": "vtha"}');
+insert into events (type, body)
+  values ('update_user', '{"id": 42, "name": "vtha"}');
 
 
-
-TRUNCATE TABLE users;
-DO LANGUAGE plpgsql $$
-	DECLARE
-		e RECORD;
-    BEGIN
-		FOR e IN SELECT body FROM events WHERE type == 'create_user' ORDER BY inserted_at ASC LOOP
-      PERFORM fn_event_insert_action(e.body);
-		END LOOP;
-	END;
+do language plpgsql $$
+  declare
+    e record;
+  begin
+	  for e in select body from events where type = 'create_user' order by inserted_at asc loop
+      perform fn_event_insert_action(e.body);
+	  end loop;
+  end;
 $$;
 
 
-
-insert into users(id, name, inserted_at, updated_at)
-    values(new.id, new.body->>'blah', NOW(), NOW())
-  on conflict (id) do
-    update SET name = new.body->>'blah', updated_at = NOW()
-    where users.id = new.id;
+-- insert into users(id, name, inserted_at, updated_at)
+--     values(new.id, new.body->>'blah', now(), now())
+--   on conflict (id) do
+--     update set name = new.body->>'blah', updated_at = now()
+--     where users.id = new.id;
