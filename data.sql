@@ -10,13 +10,14 @@ insert into events (type, body)
   values ('update_user', '{"id": 42, "name": "vtha"}');
 
 
+-- Retrigger events
 do language plpgsql $$
   declare
     e record;
   begin
-	  for e in select body from events where type = 'create_user' order by inserted_at asc loop
-      perform fn_event_insert_action(e.body);
-	  end loop;
+    for e in select body from events where type = 'create_user' order by inserted_at asc loop
+      perform fn_event_user_insert(e.body);
+    end loop;
   end;
 $$;
 

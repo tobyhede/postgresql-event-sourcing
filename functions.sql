@@ -18,7 +18,7 @@ create or replace function fn_event_user_update(event jsonb) returns integer
 as $$
   begin
     update users SET name = event->>'name', updated_at = NOW()
-    where users.id = (event->>'id')::int;
-	 return (event->>'id')::int;
+      where users.id = (event->>'id')::int;
+    return (event->>'id')::int;
   end;
 $$;
