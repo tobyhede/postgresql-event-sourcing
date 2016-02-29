@@ -34,17 +34,16 @@ $$;
 
 
 truncate table users;
--- Retrigger events for a specific user
 do language plpgsql $$
   declare
     e record;
   begin
-    for e in select type, body from events where (body->>'id')::int = 42 order by inserted_at asc loop
+    for e in select type, uuid, body from events where uuid = '11111111-1111-1111-1111-111111111111' order by inserted_at asc loop
 	  if e.type = 'create_user' then
-        perform fn_event_user_insert(e.body);
+        perform fn_event_user_insert(e.uuid, e.body);
 	  end if;
 	  if e.type = 'update_user' then
-        perform fn_event_user_update(e.body);
+        perform fn_event_user_update(e.uuid, e.body);
 	  end if;
     end loop;
   end;
