@@ -22,7 +22,7 @@ do language plpgsql $$
   declare
     e record;
   begin
-    for e in select body from events where type = 'user_create' order by inserted_at asc loop
+    for e in select uuid, body from events where type = 'user_create' order by inserted_at asc loop
       perform fn_project_user_create(e.uuid, e.body);
     end loop;
   end;
@@ -41,24 +41,18 @@ do language plpgsql $$
 	  if e.type = 'user_update' then
         perform fn_project_user_update(e.uuid, e.body);
 	  end if;
-
     end loop;
   end;
 $$;
 
 
-truncate table users;
-do language plpgsql $$
-  declare
-    e record;
-  begin
-    for e in select type, uuid, body from events where uuid = '11111111-1111-1111-1111-111111111111' order by inserted_at asc loop
-    case e.type
-      when 'user_create' then
-        perform fn_project_user_create(e.uuid, e.body);
-	   when 'user_update' then
-        perform fn_project_user_update(e.uuid, e.body);
-	  end case;
-    end loop;
-  end;
-$$;
+drop materialized view if exists "users_view";
+create materialized view users_view as
+  with t as (
+      select *, row_number() over(partition by uuid order by inserted_at desc) as rn
+      from events
+      where type = 'update_user'
+  )
+  select * from t where rn = 1;
+
+select * from users_view;

@@ -1,3 +1,26 @@
+
+insert into events (type, uuid, body)
+  values ('create_user', '11111111-1111-1111-1111-111111111111', '{"name": "blah"}');
+
+
+insert into events (type, uuid, body)
+  values ('update_user', '11111111-1111-1111-1111-111111111111', '{"name": "vtha"}');
+
+
+insert into events (type, uuid, body)
+  values ('update_user', '11111111-1111-1111-1111-111111111111', '{"name": "toby"}');
+
+
+
+  SELECT *
+  FROM events e
+  WHERE inserted_at = (
+      SELECT MAX(e2.inserted_at)
+      FROM events e2
+      WHERE e2.uuid = e.uuid
+  )
+
+
 create or replace function fn_event_insert() returns trigger
   security definer
   language plpgsql
