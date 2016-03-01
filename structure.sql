@@ -5,7 +5,7 @@ CREATE TABLE "events" (
   "uuid" uuid NOT NULL,
   "type" text NOT NULL,
   "body" jsonb NOT NULL,
-  "inserted_at" timestamp(6) NOT NULL DEFAULT 'NOW()'
+  "inserted_at" timestamp(6) NOT NULL DEFAULT statement_timestamp()
 );
 
 CREATE INDEX "events_type" ON "events" USING btree(type ASC);
