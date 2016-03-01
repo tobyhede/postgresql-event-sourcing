@@ -147,6 +147,22 @@ do language plpgsql $$
   end;
 $$;
 ```
-
 All of these functions will be executed in the same transaction block.
 This doesn't particularly matter in an event sourced system, but it is good to know.
+
+PostgreSQL is not just limited to processing events iteratively.
+
+Below is an example of using a materialized view to project the user data.
+
+```sql
+create materialized view users_view as
+  with t as (
+      select *, row_number() over(partition by uuid order by inserted_at desc) as row_number
+      from events
+      where type = 'update_user'
+  )
+  select uuid, body->>'name' as name, inserted_at from t where row_number = 1;
+
+select * from users_view;
+```
+In this case we assume that the most recent update event contains the correct user data, and we query to find the most recent `update_user` event for each user identified.
