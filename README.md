@@ -27,17 +27,7 @@ We assume that all objects/entities in the system have a globally unique identif
 | body    | Event data as JSON  |
 | inserted_at    | timestamp of event insert  |
 
-=======
-postgresql event sourcing
 
-
-
-### Events Table
-
-
-
-
->>>>>>> reviewed names based on readme work
 ```sql
 CREATE TABLE "events" (
   "id" serial primary key not null,
@@ -48,7 +38,6 @@ CREATE TABLE "events" (
 );
 ```
 
-<<<<<<< 4093f3946313f48e38c518757ade1f5a3d33f536
 An example event, tracking an update to the name of the user identifier by the uuuid:
 
 ```sql
