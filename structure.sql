@@ -8,6 +8,8 @@ CREATE TABLE "events" (
   "inserted_at" timestamp(6) NOT NULL DEFAULT statement_timestamp()
 );
 
-CREATE INDEX "events_type" ON "events" USING btree(type ASC);
+CREATE INDEX "idx_events_type" ON "events" (type ASC);
 
-CREATE INDEX "events_uuid" ON "events" USING btree(uuid);
+CREATE INDEX "idx_events_uuid" ON "events" (uuid);
+
+CREATE INDEX "idx_events_inserted_at" ON "events" (inserted_at DESC);
