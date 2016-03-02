@@ -23,7 +23,7 @@ drop trigger if exists event_insert_user_create ON events;
 create trigger event_insert_user_create after insert on events
   for each row
   when (new.type = 'user_create')
-  execute procedure fn_trigger_user_insert();
+  execute procedure fn_trigger_user_create();
 
 drop trigger if exists event_insert_user_update ON events;
 create trigger event_insert_user_update after insert on events
