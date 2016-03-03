@@ -8,7 +8,7 @@ The basic flow of action is:
 
 event -> after insert trigger -> trigger function -> projection function -> projection
 
-The advantage of this model is that triggers ensure the projections are always up to date, but we do not lose the abilty to replay the event stream with the same logic.
+The advantage of this model is that triggers ensure the projections are always up to date, but we do not lose the ability to replay the event stream with the same logic.
 
 
 ### Events
