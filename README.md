@@ -34,15 +34,15 @@ CREATE TABLE "events" (
   "uuid" uuid NOT NULL,
   "type" text NOT NULL,
   "body" jsonb NOT NULL,
-  "inserted_at" timestamp(6) NOT NULL DEFAULT 'NOW()'
+  "inserted_at" timestamp(6) NOT NULL DEFAULT statement_timestamp()
 );
 ```
 
-An example event, tracking an update to the name of the user identifier by the uuuid:
+An example event, tracking an update to the name of the user identified by a uuid:
 
 ```sql
 insert into events (type, uuid, body)
-values ('user_create', '11111111-1111-1111-1111-111111111111', '{"name": "blah"}');
+values ('user_update', '11111111-1111-1111-1111-111111111111', '{"name": "blah"}');
 ```
 
 ### Projection Triggers
@@ -73,7 +73,8 @@ create trigger event_insert_user_create after insert on events
 
 ### Projection Functions
 
-A projection function does the actual work of handling the event data and mapping to the appropriote projection.
+A projection function does the actual work of handling the event data and mapping to the appropriate projection.
+
 Multiple triggers and multiple functions can be added to handle different aspects of the same event type if required.
 
 Assuming a `users` table with a `name` and `uuid`, the following function inserts a new user record into the table based on the `user_create` event.
@@ -148,7 +149,7 @@ create materialized view users_view as
   with t as (
       select *, row_number() over(partition by uuid order by inserted_at desc) as row_number
       from events
-      where type = 'update_user'
+      where type = 'user_update'
   )
   select uuid, body->>'name' as name, inserted_at from t where row_number = 1;
 
